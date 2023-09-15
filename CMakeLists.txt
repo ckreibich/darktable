@@ -271,7 +271,7 @@ include(windows-macros)
 message(STATUS "Looking for external programs")
 set(EXTERNAL_PROGRAMS_FOUND 1)
 
-# we need perl for introspection
+# we need perl and its FindBin package for introspection
 find_program(perl_BIN perl)
 if(${perl_BIN} STREQUAL "perl_BIN-NOTFOUND")
   message(STATUS "Missing perl")
@@ -279,6 +279,15 @@ if(${perl_BIN} STREQUAL "perl_BIN-NOTFOUND")
 else(${perl_BIN} STREQUAL "perl_BIN-NOTFOUND")
   message(STATUS "Found perl")
 endif(${perl_BIN} STREQUAL "perl_BIN-NOTFOUND")
+
+execute_process(COMMAND ${perl_BIN} -MFindBin -e ""
+  ERROR_QUIET RESULT_VARIABLE perl_FindBin_status)
+if(${perl_FindBin_status} STREQUAL "0")
+  message(STATUS "Found FindBin perl module")
+else()
+  message(STATUS "Missing FindBin perl module")
+  set(EXTERNAL_PROGRAMS_FOUND 0)
+endif()
 
 # we need intltool-merge for org.darktable.darktable.desktop
 find_program(intltool_merge_BIN intltool-merge)
