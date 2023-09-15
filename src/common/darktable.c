@@ -115,7 +115,7 @@
 
 darktable_t darktable;
 
-static int usage(const char *argv0)
+static int usage(const char *argv0, int retcode)
 {
 #ifdef _WIN32
   char *logfile = g_build_filename(g_get_user_cache_dir(), "darktable", "darktable-log.txt", NULL);
@@ -172,7 +172,7 @@ static int usage(const char *argv0)
   g_free(logfile);
 #endif
 
-  return 1;
+  return retcode;
 }
 
 gboolean dt_is_dev_version()
@@ -705,21 +705,21 @@ int dt_init(int argc, char *argv[], const gboolean init_gui, const gboolean load
 #ifdef _WIN32
     if(!strcmp(argv[k], "/?"))
     {
-      return usage(argv[0]);
+      return usage(argv[0], 0);
     }
 #endif
     if(argv[k][0] == '-')
     {
       if(!strcmp(argv[k], "--help") || !strcmp(argv[k], "-h"))
       {
-        return usage(argv[0]);
+        return usage(argv[0], 0);
       }
       else if(!strcmp(argv[k], "--version"))
       {
         char *theversion = _get_version_string();
         printf("%s", theversion);
         dt_free_align(theversion);
-        return 1;
+        return 0;
       }
       else if(!strcmp(argv[k], "--dump-pfm") && argc > k + 1)
       {
@@ -846,7 +846,7 @@ int dt_init(int argc, char *argv[], const gboolean init_gui, const gboolean load
         else if(!strcmp(argv[k + 1], "expose"))
           darktable.unmuted |= DT_DEBUG_EXPOSE;
         else
-          return usage(argv[0]);
+          return usage(argv[0], 1);
         k++;
         argv[k-1] = NULL;
         argv[k] = NULL;
@@ -870,7 +870,7 @@ int dt_init(int argc, char *argv[], const gboolean init_gui, const gboolean load
 #endif
         }
         else
-          return usage(argv[0]);
+          return usage(argv[0], 1);
         k++;
         argv[k-1] = NULL;
         argv[k] = NULL;
@@ -928,7 +928,7 @@ int dt_init(int argc, char *argv[], const gboolean init_gui, const gboolean load
           dt_print(DT_DEBUG_SIGNAL,
                    "[dt_init] unknown signal name: '%s'. use 'ALL'"
                    " to enable debug for all or use full signal name\n", str);
-          return usage(argv[0]);
+          return usage(argv[0], 1);
         }
         g_free(str);
         #undef CHKSIGDBG
@@ -1014,7 +1014,7 @@ int dt_init(int argc, char *argv[], const gboolean init_gui, const gboolean load
       }
 #endif
       else
-        return usage(argv[0]); // fail on unrecognized options
+        return usage(argv[0], 1); // fail on unrecognized options
     }
   }
 
